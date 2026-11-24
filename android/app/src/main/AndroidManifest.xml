@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Zugriff auf die Pläne nur für Apps mit demselben Signaturschlüssel (HoneyCut). Die Berechtigung legen
+         ScriptGenius und HoneyCut beide an – so ist sie da, gleich welche App zuerst installiert wurde. -->
+    <permission
+        android:name="de.honeybalecta.scriptgenius.permission.PLAENE"
+        android:label="Pläne aus ScriptGenius"
+        android:protectionLevel="signature" />
+    <!-- HoneyCut öffnen („Mit HoneyCut“) -->
+    <queries>
+        <package android:name="de.honeybalecta.textschnitt" />
+    </queries>
+    <application
+        android:label="ScriptGenius"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.ScriptGenius"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|density|uiMode"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Pläne (.scriptgenius) über „Teilen“ oder „Öffnen mit“ -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/json" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" android:mimeType="application/json" />
+                <data android:scheme="content" android:mimeType="application/octet-stream" />
+            </intent-filter>
+        </activity>
+        <!-- Schnittstelle für HoneyCut: Pläne lesen, sichern, löschen (call: list, save, delete) -->
+        <provider
+            android:name=".PlaeneProvider"
+            android:authorities="de.honeybalecta.scriptgenius.plaene"
+            android:exported="true"
+            android:permission="de.honeybalecta.scriptgenius.permission.PLAENE" />
+    </application>
+</manifest>

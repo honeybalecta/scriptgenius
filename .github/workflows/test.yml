@@ -1,0 +1,52 @@
+name: Prüfläufe
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+    paths: ["web/**", "fonts/**", "desktop/**", "tests/**", "build.py", "version.txt", ".github/workflows/test.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Exporte werden so gelesen, wie es andere Programme tun: PDF mit pypdf und qpdf, Bilder mit Pillow
+      - name: qpdf, pypdf, Pillow und Playwright
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq qpdf > /dev/null
+          pip install -q pypdf pillow
+          cd tests && npm install --no-audit --no-fund
+          google-chrome --version || npx playwright install chromium
+
+      - name: Prüfläufe
+        run: tests/lauf.sh
+
+      - name: Bericht
+        if: always()
+        run: cat tests/.work/bericht.md >> "$GITHUB_STEP_SUMMARY" || echo "kein Bericht" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Bildschirmfotos und Exporte
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pruefung-scriptgenius
+          path: |
+            tests/.work/bericht.md
+            tests/.work/bilder/
+            tests/.work/out/export/
+          retention-days: 14

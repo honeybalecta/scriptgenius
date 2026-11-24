@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+site/
+_site/
+dist/
+dist-web/
+build/
+build-sg/
+tests/.work/
+android/app/src/main/assets/
+android/.gradle/
+android/app/build/
+tests/node_modules
+tests/package-lock.json
